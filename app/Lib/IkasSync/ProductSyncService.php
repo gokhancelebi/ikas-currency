@@ -183,11 +183,17 @@ class ProductSyncService
                 'ikas_price' => IkasProductGraphQL::variantSellPrice($variant),
             ]);
 
-            $variantUpdates[] = [
-                'variantId' => $variant['id'],
-                'sellPrice' => $calculated['total'],
-                'discountPrice' => $calculated['comparison'],
-            ];
+            $currentSell = IkasProductGraphQL::variantSellPrice($variant);
+            $currentDiscount = IkasProductGraphQL::variantDiscountPrice($variant);
+
+            if (abs($calculated['total'] - $currentSell) > 0.01
+                || abs($calculated['comparison'] - $currentDiscount) > 0.01) {
+                $variantUpdates[] = [
+                    'variantId' => $variant['id'],
+                    'sellPrice' => $calculated['total'],
+                    'discountPrice' => $calculated['comparison'],
+                ];
+            }
 
             if ($productModel->multiple_price === 'yes' && $firstVariantTotalPrice === null) {
                 $firstVariantTotalPrice = $calculated['total'];

@@ -11,8 +11,10 @@ class CategorySyncService
     ) {
     }
 
-    public function sync(): void
+    public function sync(?array $allProducts = null): void
     {
+        $allProducts ??= $this->graphql->allProducts();
+        $productsByCategory = IkasProductGraphQL::indexProductsByCategoryId($allProducts);
         $categories = $this->graphql->getAllCategories();
         $categoriesById = IkasProductGraphQL::indexCategoriesById($categories);
 
@@ -20,7 +22,7 @@ class CategorySyncService
             $categoryId = (string) $category['id'];
             $displayName = IkasProductGraphQL::categoryDisplayName($category, $categoriesById);
             $parentId = $category['parentId'] ?? null;
-            $productIds = array_column($this->graphql->getProductsInCategory($categoryId), 'id');
+            $productIds = $productsByCategory[$categoryId] ?? [];
             $collectionModel = CollectionModel::where('ikas_category_id', $categoryId)->first();
 
             if ($collectionModel && $collectionModel->active == 'active') {

@@ -32,15 +32,19 @@ class SyncCron
 
         $start = time();
 
-        $this->categories->sync();
-
+        echo 'Fetching products...'.PHP_EOL;
         $allProducts = $this->graphql->allProducts();
 
         if (empty($allProducts)) {
+            echo 'Syncing categories...'.PHP_EOL;
+            $this->categories->sync([]);
             $this->status->update('done');
 
             return true;
         }
+
+        echo 'Syncing categories...'.PHP_EOL;
+        $this->categories->sync($allProducts);
 
         $productsInDatabase = ProductModel::pluck('ikas_product_id')->toArray();
         $productsInIkas = array_column($allProducts, 'id');
@@ -49,7 +53,10 @@ class SyncCron
         $count = count($allProducts);
         $dbCollections = CollectionModel::all();
 
+        echo "Processing {$count} products...".PHP_EOL;
+
         foreach ($allProducts as $product) {
+            echo "Product {$index}/{$count}: ".($product['name'] ?? $product['id']).PHP_EOL;
             $this->status->setProgress($index, $count);
             $this->status->update('running');
 
@@ -93,6 +100,8 @@ class SyncCron
 
         $this->status->update('done');
         $this->status->writeLastUpdate($start, time());
+
+        echo 'Sync completed.'.PHP_EOL;
 
         return true;
     }

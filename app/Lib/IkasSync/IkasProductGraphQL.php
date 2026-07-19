@@ -540,6 +540,31 @@ GQL;
         return $indexed;
     }
 
+    /** @param  array<int, array<string, mixed>>  $products */
+    /** @return array<string, array<int, string>> */
+    public static function indexProductsByCategoryId(array $products): array
+    {
+        $index = [];
+
+        foreach ($products as $product) {
+            $productId = (string) ($product['id'] ?? '');
+            if ($productId === '') {
+                continue;
+            }
+
+            foreach ($product['categories'] ?? [] as $category) {
+                $categoryId = (string) ($category['id'] ?? '');
+                if ($categoryId === '') {
+                    continue;
+                }
+
+                $index[$categoryId][] = $productId;
+            }
+        }
+
+        return $index;
+    }
+
     /** @param  array<string, mixed>  $category */
     /** @param  array<string, array<string, mixed>>  $categoriesById */
     public static function categoryDisplayName(array $category, array $categoriesById): string
