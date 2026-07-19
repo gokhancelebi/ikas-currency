@@ -13,20 +13,20 @@ return new class extends Migration
             $table->string('sku')->default('');
             $table->string('name');
             $table->decimal('price', 8, 2)->nullable();
-            $table->decimal('shopify_price', 8, 2)->nullable();
+            $table->decimal('ikas_price', 8, 2)->nullable();
             $table->string('price_type');
             $table->string('discount')->default('0');
             $table->string('profit')->default('0');
             $table->string('commission')->default('0');
             $table->string('total_price')->default('0');
             $table->string('comparison_price')->default('0');
-            $table->string('shopify_product_id')->nullable();
-            $table->string('shopify_variant_id')->nullable();
-            $table->string('shopify_image')->nullable();
+            $table->string('ikas_product_id')->nullable();
+            $table->string('ikas_variant_id')->nullable();
+            $table->string('ikas_image')->nullable();
             $table->boolean('sync_enabled')->default(true);
 
             // Index but not foreign key to match SQL structure
-            $table->index('shopify_product_id');
+            $table->index('ikas_product_id');
         });
     }
 

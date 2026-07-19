@@ -62,8 +62,8 @@ class CampaignsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $collection_id = $request->input('shopify_collection_id');
-        $campaign = Collection::where('shopify_collection_id', $collection_id)->first();
+        $collection_id = $request->input('ikas_category_id');
+        $campaign = Collection::where('ikas_category_id', $collection_id)->first();
         $campaign->update($request->except(['_token', '_method']));
         return response()->json(['msg' => __('campaigns.updated', ['name' => $campaign->name]), 'status' => 'success']);
     }

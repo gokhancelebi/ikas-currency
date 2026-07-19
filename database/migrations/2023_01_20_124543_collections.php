@@ -13,17 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        # collections table with id, name, shopify_collection_id
+        # collections table with id, name, ikas_category_id
         Schema::create('collections',function (Blueprint $table){
             $table->id();
             $table->string('name');
             $table->string('active')->default('passive');
-            $table->string('shopify_collection_id');
+            $table->string('ikas_category_id');
             $table->string('discount')->default(0);
             $table->string('profit')->default(0);
             $table->longText('product_list')->nullable();
 
-            $table->unique('shopify_collection_id');
+            $table->unique('ikas_category_id');
         });
 
     }

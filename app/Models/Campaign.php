@@ -21,6 +21,6 @@ class Campaign extends Model
 
     public function collection()
     {
-        return $this->belongsTo(Collection::class, 'collection_id', 'shopify_collection_id');
+        return $this->belongsTo(Collection::class, 'collection_id', 'ikas_category_id');
     }
 }

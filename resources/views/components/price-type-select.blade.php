@@ -14,7 +14,7 @@
     @if($emptyOption)
         <option value="">{{ $emptyOption }}</option>
     @endif
-    @foreach (config('shopify.price_types', ['TL']) as $type)
+    @foreach (config('ikas.price_types', ['TL']) as $type)
         <option value="{{ $type }}" @selected($value == $type)>{{ $type }}</option>
     @endforeach
 </select>

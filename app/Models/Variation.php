@@ -16,7 +16,7 @@ class Variation extends Model
     protected $fillable = [
         'name',
         'price',
-        'shopify_price',
+        'ikas_price',
         'sync_enabled',
         'sku',
         'price_type',
@@ -25,19 +25,19 @@ class Variation extends Model
         'commission',
         'total_price',
         'comparison_price',
-        'shopify_product_id',
-        'shopify_variant_id',
-        'shopify_image',
+        'ikas_product_id',
+        'ikas_variant_id',
+        'ikas_image',
     ];
 
     protected $casts = [
         'sync_enabled' => 'boolean',
-        'shopify_price' => 'decimal:2',
+        'ikas_price' => 'decimal:2',
         'price' => 'decimal:2',
     ];
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'shopify_product_id', 'shopify_product_id');
+        return $this->belongsTo(Product::class, 'ikas_product_id', 'ikas_product_id');
     }
 }

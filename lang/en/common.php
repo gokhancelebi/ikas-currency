@@ -20,7 +20,7 @@ return [
     'type' => 'Type',
     'simple' => 'Simple',
     'variable' => 'Variable',
-    'shopify' => 'Shopify',
+    'ikas' => 'İkas',
     'set' => 'Set',
     'missing' => 'Not set',
     'unset' => 'Missing',

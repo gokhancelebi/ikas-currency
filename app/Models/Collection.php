@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Collection extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
+
     public $timestamps = false;
 
     public function campaign()
     {
-        return $this->hasOne(Campaign::class, 'collection_id', 'shopify_collection_id');
+        return $this->hasOne(Campaign::class, 'collection_id', 'ikas_category_id');
     }
 
     public function products()

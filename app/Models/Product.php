@@ -11,14 +11,13 @@ class Product extends Model
     use HasFactory;
     use HasPricingState;
 
-    # _token is not in the database
     protected $guarded = ['_token'];
 
     protected $fillable = [
         'sku',
         'name',
         'price',
-        'shopify_price',
+        'ikas_price',
         'sync_enabled',
         'price_type',
         'discount',
@@ -26,33 +25,30 @@ class Product extends Model
         'commission',
         'total_price',
         'comparison_price',
-        'shopify_product_id',
-        'shopify_image',
+        'ikas_product_id',
+        'ikas_image',
         'multiple_price',
-        'shopify_deleted_at',
+        'ikas_deleted_at',
     ];
 
     protected $casts = [
         'sync_enabled' => 'boolean',
-        'shopify_price' => 'decimal:2',
+        'ikas_price' => 'decimal:2',
         'price' => 'decimal:2',
-        'shopify_deleted_at' => 'datetime',
+        'ikas_deleted_at' => 'datetime',
     ];
 
-    /** Shopify mağazasında silinmiş / API listesinde yok */
-    public function isDeletedFromShopify(): bool
+    /** İkas mağazasında silinmiş / API listesinde yok */
+    public function isDeletedFromIkas(): bool
     {
-        return $this->shopify_deleted_at !== null;
+        return $this->ikas_deleted_at !== null;
     }
 
     public function variations()
     {
-        return $this->hasMany(Variation::class, 'shopify_product_id', 'shopify_product_id');
+        return $this->hasMany(Variation::class, 'ikas_product_id', 'ikas_product_id');
     }
 
-    /**
-     * Varyant bazlı düzenleme ekranı: çoklu fiyat açık ve en az bir varyant kaydı.
-     */
     public function hasEditableVariations(): bool
     {
         $count = $this->variations_count ?? $this->variations()->count();
@@ -65,7 +61,6 @@ class Product extends Model
         return ($this->variations_count ?? $this->variations()->count()) > 0;
     }
 
-    /** Liste satırı için maliyet durumu */
     public function listCostStatus(): string
     {
         if ($this->multiple_price === 'yes' && $this->isVariable()) {
@@ -77,7 +72,6 @@ class Product extends Model
         return $this->hasCostConfigured() ? 'set' : 'missing';
     }
 
-    /** Liste satırında gösterilecek maliyet metni */
     public function listCostLabel(): string
     {
         if ($this->multiple_price === 'yes' && $this->isVariable()) {
@@ -96,7 +90,6 @@ class Product extends Model
         return __('common.dash');
     }
 
-    /** Maliyet metnine birim ekler (ör. 25.00 USD) */
     private function appendPriceType(string $label): string
     {
         $type = trim((string) ($this->price_type ?? ''));
@@ -119,7 +112,7 @@ class Product extends Model
 
         $query->where(function ($q) use ($search, $skuList) {
             $q->where('name', 'like', '%'.$search.'%')
-                ->orWhere('shopify_product_id', 'like', '%'.$search.'%');
+                ->orWhere('ikas_product_id', 'like', '%'.$search.'%');
 
             if (count($skuList) > 1) {
                 $q->orWhereIn('sku', $skuList);
@@ -224,22 +217,21 @@ class Product extends Model
     }
 
     /** @param  \Illuminate\Database\Eloquent\Builder<self>  $query */
-    public function scopeFilterShopifyStatus($query, ?string $status): void
+    public function scopeFilterIkasStatus($query, ?string $status): void
     {
         match ($status) {
-            'deleted' => $query->whereNotNull('shopify_deleted_at'),
-            'active' => $query->whereNull('shopify_deleted_at'),
+            'deleted' => $query->whereNotNull('ikas_deleted_at'),
+            'active' => $query->whereNull('ikas_deleted_at'),
             default => null,
         };
     }
 
-    /** Liste / filtre: maliyet eksik, sync kapalı veya Shopify'da silinmiş */
     public function attentionReasons(): array
     {
         $reasons = [];
 
-        if ($this->isDeletedFromShopify()) {
-            $reasons[] = __('products.attention.shopify_deleted');
+        if ($this->isDeletedFromIkas()) {
+            $reasons[] = __('products.attention.ikas_deleted');
         }
 
         if ($this->listCostStatus() === 'missing') {
@@ -267,7 +259,7 @@ class Product extends Model
             $q->whereCostMissing()
                 ->orWhere('sync_enabled', false)
                 ->orWhereHas('variations', fn ($v) => $v->where('sync_enabled', false))
-                ->orWhereNotNull('shopify_deleted_at');
+                ->orWhereNotNull('ikas_deleted_at');
         });
     }
 
@@ -275,7 +267,7 @@ class Product extends Model
     {
         return $this->belongsToMany(Collection::class, null, null, null)
             ->using(function ($product) {
-                return Collection::whereJsonContains('product_list', $product->shopify_product_id)->get();
+                return Collection::whereJsonContains('product_list', $product->ikas_product_id)->get();
             });
     }
 }

@@ -21,7 +21,7 @@ class ProductFactory extends Factory
             'name' => $this->faker->sentence(10),
             'price_type' => 'USD',
             'price' => $this->faker->randomFloat(2, 1, 100),
-            'shopify_product_id' => $this->faker->unique()->numberBetween(100000000, 999999999),
+            'ikas_product_id' => $this->faker->uuid(),
             'discount' => $this->faker->randomFloat(2, 0, 100),
             'commission' => $this->faker->randomFloat(2, 0, 100),
             'profit' => $this->faker->randomFloat(2, 0, 100),

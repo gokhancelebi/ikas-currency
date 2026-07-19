@@ -31,7 +31,7 @@
                         </thead>
                         <tbody>
                         @foreach ($collections as $collection)
-                            <tr data-collection-id="{{$collection->shopify_collection_id}}" class="hover:bg-gray-200 px-4 py-2">
+                            <tr data-collection-id="{{$collection->ikas_category_id}}" class="hover:bg-gray-200 px-4 py-2">
                                 <td class="border px-4 py-2">
                                     <select name="active" id="active" class="active w-full">
                                         <option value="active" @if($collection->active == 'actice') selected @endif>
@@ -122,7 +122,7 @@
                     data: {
                         _token: '{{ csrf_token() }}',
                         _method: 'PUT',
-                        shopify_collection_id: collectionId,
+                        ikas_category_id: collectionId,
                         discount: discount,
                         profit: profit,
                         active: active

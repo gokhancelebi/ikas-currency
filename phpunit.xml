@@ -7,8 +7,8 @@
     <testsuite name="Feature">
       <directory suffix="Test.php">./tests/Feature</directory>
     </testsuite>
-    <testsuite name="ShopifySync">
-      <directory suffix="Test.php">./tests/ShopifySync</directory>
+    <testsuite name="IkasSync">
+      <directory suffix="Test.php">./tests/IkasSync</directory>
     </testsuite>
   </testsuites>
   <php>
@@ -21,7 +21,7 @@
     <env name="QUEUE_CONNECTION" value="sync"/>
     <env name="SESSION_DRIVER" value="array"/>
     <env name="TELESCOPE_ENABLED" value="false"/>
-    <env name="SHOPIFY_LIVE_TESTS" value="false"/>
+    <env name="IKAS_LIVE_TESTS" value="false"/>
   </php>
   <source>
     <include>

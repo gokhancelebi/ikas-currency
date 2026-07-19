@@ -10,10 +10,9 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('command:shopify')
+        $schedule->command('command:ikas')
             ->everyMinute()
-//            ->sendOutputTo(storage_path('logs/shopify-'.time().'.log'));
-            ->sendOutputTo(storage_path('logs/shopify.log'));
+            ->sendOutputTo(storage_path('logs/ikas.log'));
     }
 
 

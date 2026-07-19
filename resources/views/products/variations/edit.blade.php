@@ -24,7 +24,7 @@
                     <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg text-sm">
                         <div>
                             <span class="text-gray-500">{{ __('common.store_price_full') }}</span>
-                            <p class="font-medium">{{ $variation->shopify_price !== null ? number_format((float) $variation->shopify_price, 2) : __('common.dash') }}</p>
+                            <p class="font-medium">{{ $variation->ikas_price !== null ? number_format((float) $variation->ikas_price, 2) : __('common.dash') }}</p>
                         </div>
                         <div>
                             <span class="text-gray-500">{{ __('common.calculated_price') }}</span>

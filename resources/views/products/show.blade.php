@@ -11,10 +11,10 @@
                 </div>
             @endif
 
-            @if($product->isDeletedFromShopify())
+            @if($product->isDeletedFromIkas())
                 <div class="rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-800">
                     {{ __('products.deleted_banner') }}
-                    {{ __('products.deleted_detected') }} {{ $product->shopify_deleted_at->format('d.m.Y H:i') }}.
+                    {{ __('products.deleted_detected') }} {{ $product->ikas_deleted_at->format('d.m.Y H:i') }}.
                     {{ __('products.deleted_restore_hint') }}
                 </div>
             @endif
@@ -24,15 +24,15 @@
                     <div class="min-w-0 flex-1">
                         <a href="{{ route('products.index') }}" class="text-sm text-indigo-600 hover:underline">{{ __('products.back_to_list') }}</a>
                         <div class="flex items-start gap-3 mt-2">
-                            @if($product->shopify_image)
-                                <img src="{{ $product->shopify_image }}" alt="" class="w-14 h-14 rounded object-cover shrink-0">
+                            @if($product->ikas_image)
+                                <img src="{{ $product->ikas_image }}" alt="" class="w-14 h-14 rounded object-cover shrink-0">
                             @endif
                             <div class="min-w-0">
                                 <h1 class="text-2xl font-bold break-words">{{ $product->name }}</h1>
                                 <p class="text-sm text-gray-500">{{ __('common.sku') }}: {{ $product->sku }}</p>
                                 <div class="flex flex-wrap items-center gap-2 mt-2">
                                     <x-variant-badge :count="$product->variations_count" />
-                                    <x-shopify-status-badge :deleted="$product->isDeletedFromShopify()" />
+                                    <x-ikas-status-badge :deleted="$product->isDeletedFromIkas()" />
                                 </div>
                             </div>
                         </div>
@@ -46,7 +46,7 @@
                 <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm border rounded-lg p-4 bg-gray-50">
                     <div>
                         <dt class="text-gray-500">{{ __('common.store_price_full') }}</dt>
-                        <dd class="font-medium">{{ $product->shopify_price !== null ? number_format((float) $product->shopify_price, 2) : __('common.dash') }}</dd>
+                        <dd class="font-medium">{{ $product->ikas_price !== null ? number_format((float) $product->ikas_price, 2) : __('common.dash') }}</dd>
                     </div>
                     <div>
                         <dt class="text-gray-500">{{ __('common.cost') }}</dt>
@@ -87,7 +87,7 @@
                                 <tr class="border-t hover:bg-gray-50">
                                     <td class="px-4 py-2">{{ $variation->name }}</td>
                                     <td class="px-4 py-2">{{ $variation->sku }}</td>
-                                    <td class="px-4 py-2">{{ $variation->shopify_price !== null ? number_format((float) $variation->shopify_price, 2) : __('common.dash') }}</td>
+                                    <td class="px-4 py-2">{{ $variation->ikas_price !== null ? number_format((float) $variation->ikas_price, 2) : __('common.dash') }}</td>
                                     <td class="px-4 py-2">
                                         <x-cost-badge :status="$variation->hasCostConfigured() ? 'set' : 'missing'" />
                                         @if($variation->hasCostConfigured())

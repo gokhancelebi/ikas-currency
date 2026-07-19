@@ -20,7 +20,7 @@ return [
     'type' => 'Tip',
     'simple' => 'Basit',
     'variable' => 'Varyasyonlu',
-    'shopify' => 'Shopify',
+    'ikas' => 'İkas',
     'set' => 'Girilmiş',
     'missing' => 'Belirlenmemiş',
     'unset' => 'Eksik',

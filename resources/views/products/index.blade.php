@@ -96,17 +96,17 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('common.price_type') }}</label>
                                     <select name="price_type" class="w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="all" @selected($filters['price_type'] === 'all')>{{ __('common.all') }}</option>
-                                        @foreach (config('shopify.price_types', ['TL']) as $type)
+                                        @foreach (config('ikas.price_types', ['TL']) as $type)
                                             <option value="{{ $type }}" @selected($filters['price_type'] === $type)>{{ $type }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('common.shopify') }}</label>
-                                    <select name="shopify_status" class="w-full rounded-md border-gray-300 shadow-sm">
-                                        <option value="all" @selected($filters['shopify_status'] === 'all')>{{ __('common.all') }}</option>
-                                        <option value="active" @selected($filters['shopify_status'] === 'active')>{{ __('common.in_store') }}</option>
-                                        <option value="deleted" @selected($filters['shopify_status'] === 'deleted')>{{ __('common.deleted') }}</option>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('common.ikas') }}</label>
+                                    <select name="ikas_status" class="w-full rounded-md border-gray-300 shadow-sm">
+                                        <option value="all" @selected($filters['ikas_status'] === 'all')>{{ __('common.all') }}</option>
+                                        <option value="active" @selected($filters['ikas_status'] === 'active')>{{ __('common.in_store') }}</option>
+                                        <option value="deleted" @selected($filters['ikas_status'] === 'deleted')>{{ __('common.deleted') }}</option>
                                     </select>
                                 </div>
                                 <div class="xl:col-span-2 flex flex-col justify-end pb-2">
@@ -168,7 +168,7 @@
                             <th class="w-12 px-2 py-2.5 text-center">{{ __('common.image') }}</th>
                             <th class="px-3 py-2.5 text-left min-w-[10rem]">{{ __('common.product') }}</th>
                             <th class="px-2 py-2.5 text-left whitespace-nowrap">{{ __('common.type') }}</th>
-                            <th class="px-2 py-2.5 text-left whitespace-nowrap">{{ __('common.shopify') }}</th>
+                            <th class="px-2 py-2.5 text-left whitespace-nowrap">{{ __('common.ikas') }}</th>
                             <th class="px-2 py-2.5 text-right whitespace-nowrap">{{ __('common.store_price') }}</th>
                             <th class="px-2 py-2.5 text-left whitespace-nowrap">{{ __('common.cost') }}</th>
                             <th class="px-2 py-2.5 text-left whitespace-nowrap">{{ __('common.sync') }}</th>
@@ -178,14 +178,14 @@
                         </thead>
                         <tbody>
                         @foreach ($products as $product)
-                            <tr class="border-t border-gray-100 {{ $product->isDeletedFromShopify() ? 'bg-rose-50 hover:bg-rose-100/80' : 'hover:bg-gray-50' }}">
+                            <tr class="border-t border-gray-100 {{ $product->isDeletedFromIkas() ? 'bg-rose-50 hover:bg-rose-100/80' : 'hover:bg-gray-50' }}">
                                 <td class="px-2 py-2 align-top">
                                     <input type="checkbox" name="bulk-edit[]" value="{{ $product->id }}"
                                            class="rounded border-gray-300">
                                 </td>
                                 <td class="px-2 py-2 text-center align-top">
-                                    @if($product->shopify_image)
-                                        <img src="{{ $product->shopify_image }}" alt=""
+                                    @if($product->ikas_image)
+                                        <img src="{{ $product->ikas_image }}" alt=""
                                              class="w-10 h-10 rounded object-cover inline-block border border-gray-200">
                                     @else
                                         <span class="inline-block w-10 h-10 rounded bg-gray-100 border border-gray-200"></span>
@@ -205,15 +205,15 @@
                                     <x-variant-badge :count="$product->variations_count" />
                                 </td>
                                 <td class="px-2 py-2 align-top whitespace-nowrap">
-                                    <x-shopify-status-badge :deleted="$product->isDeletedFromShopify()" />
-                                    @if($product->isDeletedFromShopify())
+                                    <x-ikas-status-badge :deleted="$product->isDeletedFromIkas()" />
+                                    @if($product->isDeletedFromIkas())
                                         <p class="text-xs text-rose-600 mt-0.5">
-                                            {{ $product->shopify_deleted_at->format('d.m.Y H:i') }}
+                                            {{ $product->ikas_deleted_at->format('d.m.Y H:i') }}
                                         </p>
                                     @endif
                                 </td>
                                 <td class="px-2 py-2 text-right align-top tabular-nums text-gray-700 whitespace-nowrap">
-                                    {{ $product->shopify_price !== null ? number_format((float) $product->shopify_price, 2) : __('common.dash') }}
+                                    {{ $product->ikas_price !== null ? number_format((float) $product->ikas_price, 2) : __('common.dash') }}
                                 </td>
                                 <td class="px-2 py-2 align-top whitespace-nowrap">
                                     <x-cost-badge :status="$product->listCostStatus()" />

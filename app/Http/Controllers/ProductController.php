@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Lib\ShopifySync\RateService;
+use App\Lib\IkasSync\RateService;
 use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Http\RedirectResponse;
@@ -24,7 +24,7 @@ class ProductController extends Controller
             'type' => $request->input('type', 'all'),
             'multiple_price' => $request->input('multiple_price', 'all'),
             'price_type' => $request->input('price_type', 'all'),
-            'shopify_status' => $request->input('shopify_status', 'all'),
+            'ikas_status' => $request->input('ikas_status', 'all'),
             'attention' => $request->boolean('attention'),
         ];
 
@@ -45,7 +45,7 @@ class ProductController extends Controller
             ->filterType($filters['type'])
             ->filterMultiplePrice($filters['multiple_price'])
             ->filterPriceType($filters['price_type'])
-            ->filterShopifyStatus($filters['shopify_status'])
+            ->filterIkasStatus($filters['ikas_status'])
             ->orderBy('id', 'desc');
 
         $ratesStatus = $this->rates->inspectRatesForUi();
@@ -94,7 +94,7 @@ class ProductController extends Controller
     {
         $product = Product::withCount('variations')->findOrFail($product);
         $variation = Variation::where('id', $variation)
-            ->where('shopify_product_id', $product->shopify_product_id)
+            ->where('ikas_product_id', $product->ikas_product_id)
             ->firstOrFail();
 
         return view('products.variations.edit', compact('product', 'variation'));
@@ -105,7 +105,7 @@ class ProductController extends Controller
         if ($request->filled('variation_id')) {
             $product = Product::findOrFail($id);
             $variation = Variation::where('id', $request->input('variation_id'))
-                ->where('shopify_product_id', $product->shopify_product_id)
+                ->where('ikas_product_id', $product->ikas_product_id)
                 ->firstOrFail();
             $variation->update($this->variationFieldsFromRequest($request));
 
@@ -179,7 +179,7 @@ class ProductController extends Controller
             || $filters['type'] !== 'all'
             || $filters['multiple_price'] !== 'all'
             || $filters['price_type'] !== 'all'
-            || $filters['shopify_status'] !== 'all'
+            || $filters['ikas_status'] !== 'all'
             || $filters['attention'];
     }
 
