@@ -14,7 +14,9 @@
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
                 <a href="{{ route('products.show', $product->id) }}" class="text-sm text-indigo-600 hover:underline">← {{ $product->name }}</a>
                 <h1 class="text-2xl font-bold mt-2">{{ $variation->name }}</h1>
-                <p class="text-sm text-gray-500 mb-6">{{ __('common.sku') }}: {{ $variation->sku }}</p>
+                @if($variation->skuLine())
+                    <p class="text-sm text-gray-500 mb-6">{{ $variation->skuLine() }}</p>
+                @endif
 
                 <form action="{{ route('products.update', $product->id) }}" method="POST" class="space-y-4">
                     @csrf

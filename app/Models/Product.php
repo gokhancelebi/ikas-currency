@@ -44,6 +44,22 @@ class Product extends Model
         return $this->ikas_deleted_at !== null;
     }
 
+    /** İkas varyantında tanımlı gerçek SKU var mı */
+    public function hasSku(): bool
+    {
+        return trim((string) ($this->sku ?? '')) !== '';
+    }
+
+    /** SKU varsa etiketli metin; yoksa null (uydurma yok) */
+    public function skuLine(): ?string
+    {
+        if (! $this->hasSku()) {
+            return null;
+        }
+
+        return __('common.sku').': '.$this->sku;
+    }
+
     public function variations()
     {
         return $this->hasMany(Variation::class, 'ikas_product_id', 'ikas_product_id');

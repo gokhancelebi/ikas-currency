@@ -31,6 +31,9 @@ class ProductSyncService
 
         $this->refreshIkasPrices($productModel, $ikasProduct);
 
+        $ikasSku = trim((string) ($ikasProduct['variants'][0]['sku'] ?? ''));
+        $productModel->sku = $ikasSku;
+
         if (IkasProductGraphQL::isSimpleProduct($ikasProduct)) {
             $this->updateSimpleProduct($productModel, $ikasProduct, $profit, $discount);
 
@@ -133,7 +136,7 @@ class ProductSyncService
             }
 
             if (! $syncPrices || ! $variation->isSyncEnabled()) {
-                $variation->sku = $variant['sku'] ?: $variation->sku;
+                $variation->sku = trim((string) ($variant['sku'] ?? ''));
                 $variation->save();
 
                 continue;
@@ -141,7 +144,7 @@ class ProductSyncService
 
             if ($productModel->multiple_price === 'yes') {
                 if (! $variation->hasCostConfigured()) {
-                    $variation->sku = $variant['sku'] ?: $variation->sku;
+                    $variation->sku = trim((string) ($variant['sku'] ?? ''));
                     $variation->save();
 
                     continue;
@@ -153,7 +156,7 @@ class ProductSyncService
                 $variationPriceType = $variation->price_type;
             } else {
                 if (! $productModel->hasCostConfigured()) {
-                    $variation->sku = $variant['sku'] ?: $variation->sku;
+                    $variation->sku = trim((string) ($variant['sku'] ?? ''));
                     $variation->save();
 
                     continue;
@@ -179,7 +182,7 @@ class ProductSyncService
                 'commission' => number_format($calculated['commission'], 2, '.', ''),
                 'discount' => $variationDiscount,
                 'profit' => $variationProfit,
-                'sku' => $variant['sku'] ?: $variation->sku,
+                'sku' => trim((string) ($variant['sku'] ?? '')),
                 'ikas_price' => IkasProductGraphQL::variantSellPrice($variant),
             ]);
 
@@ -234,7 +237,7 @@ class ProductSyncService
             'price' => null,
             'ikas_price' => IkasProductGraphQL::variantSellPrice($variant),
             'sync_enabled' => true,
-            'sku' => $variant['sku'] ?: time(),
+            'sku' => trim((string) ($variant['sku'] ?? '')),
             'price_type' => $productModel->price_type,
             'discount' => $discount,
             'profit' => $profit,
@@ -255,7 +258,7 @@ class ProductSyncService
                 return;
             }
 
-            $sku = $firstVariant['sku'] ?: time();
+            $sku = trim((string) ($firstVariant['sku'] ?? ''));
             $ikasPrice = IkasProductGraphQL::variantSellPrice($firstVariant);
             $productImage = IkasProductGraphQL::productMainImage($ikasProduct);
 
@@ -279,7 +282,7 @@ class ProductSyncService
             if (! IkasProductGraphQL::isSimpleProduct($ikasProduct)) {
                 foreach ($ikasProduct['variants'] as $variant) {
                     Variation::create([
-                        'sku' => $variant['sku'] ?: time(),
+                        'sku' => trim((string) ($variant['sku'] ?? '')),
                         'name' => IkasProductGraphQL::variantDisplayName($variant),
                         'price' => null,
                         'ikas_price' => IkasProductGraphQL::variantSellPrice($variant),

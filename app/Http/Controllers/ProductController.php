@@ -127,7 +127,9 @@ class ProductController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'status' => 'success',
-                'msg' => __('products.messages.product_updated_json', ['sku' => $product->sku]),
+                'msg' => __('products.messages.product_updated_json', [
+                    'sku' => $product->hasSku() ? $product->sku : $product->name,
+                ]),
             ]);
         }
 

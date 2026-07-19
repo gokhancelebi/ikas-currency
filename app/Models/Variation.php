@@ -40,4 +40,18 @@ class Variation extends Model
     {
         return $this->belongsTo(Product::class, 'ikas_product_id', 'ikas_product_id');
     }
+
+    public function hasSku(): bool
+    {
+        return trim((string) ($this->sku ?? '')) !== '';
+    }
+
+    public function skuLine(): ?string
+    {
+        if (! $this->hasSku()) {
+            return null;
+        }
+
+        return __('common.sku').': '.$this->sku;
+    }
 }

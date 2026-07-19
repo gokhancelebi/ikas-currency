@@ -190,7 +190,19 @@ GQL;
     public function create_simple_product(array $inputs): array
     {
         $inventory = $inputs['inventory_data']['variations'][0] ?? [];
-        $sku = (string) ($inventory['sku'] ?? 'SKU-'.time());
+        $sku = trim((string) ($inventory['sku'] ?? ''));
+
+        $variant = [
+            'isActive' => true,
+            'prices' => [self::buildIkasPriceInput(
+                (float) ($inventory['price'] ?? 0),
+                (float) ($inventory['compareAtPrice'] ?? 0),
+                (float) ($inventory['cost'] ?? 0)
+            )],
+        ];
+        if ($sku !== '') {
+            $variant['sku'] = $sku;
+        }
 
         $query = 'mutation CreateProduct($input: CreateProductInput!) { createProduct(input: $input) { id name variants { id sku } } }';
         $response = $this->client->request([
@@ -200,15 +212,7 @@ GQL;
                     'name' => (string) ($inputs['title'] ?? $inputs['name'] ?? 'Test Product'),
                     'description' => (string) ($inputs['descriptionHtml'] ?? $inputs['description'] ?? ''),
                     'type' => 'PHYSICAL',
-                    'variants' => [[
-                        'sku' => $sku,
-                        'isActive' => true,
-                        'prices' => [self::buildIkasPriceInput(
-                            (float) ($inventory['price'] ?? 0),
-                            (float) ($inventory['compareAtPrice'] ?? 0),
-                            (float) ($inventory['cost'] ?? 0)
-                        )],
-                    ]],
+                    'variants' => [$variant],
                 ],
             ],
         ]);
@@ -242,7 +246,6 @@ GQL;
             }
 
             $variants[] = [
-                'sku' => (string) ($variation['sku'] ?? ''),
                 'isActive' => true,
                 'variantValues' => $variantValues,
                 'prices' => [self::buildIkasPriceInput(
@@ -251,6 +254,10 @@ GQL;
                     (float) ($variation['cost'] ?? 0)
                 )],
             ];
+            $variationSku = trim((string) ($variation['sku'] ?? ''));
+            if ($variationSku !== '') {
+                $variants[array_key_last($variants)]['sku'] = $variationSku;
+            }
         }
 
         $query = 'mutation CreateProduct($input: CreateProductInput!) { createProduct(input: $input) { id name variants { id sku variantValues { variantTypeName variantValueName } } } }';

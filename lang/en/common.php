@@ -33,6 +33,8 @@ return [
     'deleted' => 'Deleted',
     'dash' => '—',
     'sku' => 'SKU',
+    'ikas_id' => 'İkas ID',
+    'ikas_variant_id' => 'İkas variant ID',
     'language' => 'Language',
     'image' => 'Image',
     'product' => 'Product',

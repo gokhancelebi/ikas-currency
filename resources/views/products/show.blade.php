@@ -29,7 +29,9 @@
                             @endif
                             <div class="min-w-0">
                                 <h1 class="text-2xl font-bold break-words">{{ $product->name }}</h1>
-                                <p class="text-sm text-gray-500">{{ __('common.sku') }}: {{ $product->sku }}</p>
+                                @if($product->skuLine())
+                                    <p class="text-sm text-gray-500">{{ $product->skuLine() }}</p>
+                                @endif
                                 <div class="flex flex-wrap items-center gap-2 mt-2">
                                     <x-variant-badge :count="$product->variations_count" />
                                     <x-ikas-status-badge :deleted="$product->isDeletedFromIkas()" />
@@ -86,7 +88,7 @@
                             @foreach($product->variations as $variation)
                                 <tr class="border-t hover:bg-gray-50">
                                     <td class="px-4 py-2">{{ $variation->name }}</td>
-                                    <td class="px-4 py-2">{{ $variation->sku }}</td>
+                                    <td class="px-4 py-2">{{ $variation->hasSku() ? $variation->sku : __('common.dash') }}</td>
                                     <td class="px-4 py-2">{{ $variation->ikas_price !== null ? number_format((float) $variation->ikas_price, 2) : __('common.dash') }}</td>
                                     <td class="px-4 py-2">
                                         <x-cost-badge :status="$variation->hasCostConfigured() ? 'set' : 'missing'" />

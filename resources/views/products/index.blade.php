@@ -197,7 +197,9 @@
                                            class="font-medium text-indigo-600 hover:underline line-clamp-2">
                                             {{ $product->name }}
                                         </a>
-                                        <p class="text-xs text-gray-500 truncate">{{ $product->sku }}</p>
+                                        @if($product->skuLine())
+                                            <p class="text-xs text-gray-500 truncate">{{ $product->skuLine() }}</p>
+                                        @endif
                                         <x-attention-badge :reasons="$product->attentionReasons()" />
                                     </div>
                                 </td>
