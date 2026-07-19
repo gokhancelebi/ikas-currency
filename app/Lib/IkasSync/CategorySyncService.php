@@ -20,11 +20,10 @@ class CategorySyncService
             $categoryId = (string) $category['id'];
             $displayName = IkasProductGraphQL::categoryDisplayName($category, $categoriesById);
             $parentId = $category['parentId'] ?? null;
+            $productIds = array_column($this->graphql->getProductsInCategory($categoryId), 'id');
             $collectionModel = CollectionModel::where('ikas_category_id', $categoryId)->first();
 
             if ($collectionModel && $collectionModel->active == 'active') {
-                $productsInCategory = $this->graphql->getProductsInCategory($categoryId);
-                $productIds = array_column($productsInCategory, 'id');
                 $collectionModel->update([
                     'name' => $displayName,
                     'ikas_parent_category_id' => $parentId,
@@ -42,7 +41,7 @@ class CategorySyncService
                 'name' => $displayName,
                 'ikas_category_id' => $categoryId,
                 'ikas_parent_category_id' => $parentId,
-                'product_list' => json_encode([]),
+                'product_list' => json_encode($productIds),
                 'active' => 'active',
             ]);
         }

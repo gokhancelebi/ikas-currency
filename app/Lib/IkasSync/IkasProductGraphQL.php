@@ -30,6 +30,9 @@ GQL;
 
     private ?string $priceListId = null;
 
+    /** @var array<int, array<string, mixed>>|null */
+    private ?array $allProductsCache = null;
+
     public function __construct(
         private GraphqlClient $client
     ) {
@@ -38,6 +41,10 @@ GQL;
     /** @return array<int, array<string, mixed>> */
     public function allProducts(): array
     {
+        if ($this->allProductsCache !== null) {
+            return $this->allProductsCache;
+        }
+
         $products = [];
         $page = 1;
         $limit = 100;
@@ -64,6 +71,8 @@ GQL;
         }
 
         SyncStorage::writeJson('products.json', $products);
+
+        $this->allProductsCache = $products;
 
         return $products;
     }
