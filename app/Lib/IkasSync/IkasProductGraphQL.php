@@ -558,17 +558,37 @@ GQL;
     }
 
     /** @param  array<string, mixed>  $category */
+    /** @param  array<string, array<string, mixed>>  $categoriesById */
     /** @return array{name: string, path?: array<int, string>} */
-    public static function buildProductCategoryInput(array $category): array
+    public static function buildProductCategoryInput(array $category, array $categoriesById = []): array
     {
         $input = ['name' => (string) ($category['name'] ?? '')];
-        $path = self::categoryPathIds($category);
+        $pathNames = self::categoryPathNames($category, $categoriesById);
 
-        if ($path !== []) {
-            $input['path'] = $path;
+        if ($pathNames !== []) {
+            $input['path'] = $pathNames;
         }
 
         return $input;
+    }
+
+    /**
+     * @param  array<string, mixed>  $category
+     * @param  array<string, array<string, mixed>>  $categoriesById
+     * @return array<int, string>
+     */
+    public static function categoryPathNames(array $category, array $categoriesById): array
+    {
+        $names = [];
+
+        foreach (self::categoryPathIds($category) as $parentId) {
+            $parentName = $categoriesById[$parentId]['name'] ?? null;
+            if ($parentName !== null && $parentName !== '') {
+                $names[] = (string) $parentName;
+            }
+        }
+
+        return $names;
     }
 
     /**
@@ -586,7 +606,7 @@ GQL;
                 continue;
             }
 
-            $inputs[] = self::buildProductCategoryInput($category);
+            $inputs[] = self::buildProductCategoryInput($category, $categoriesById);
         }
 
         return $inputs;
@@ -661,17 +681,61 @@ GQL;
     /** @return array<int, array<string, mixed>> */
     public function getProductsInCategory(string $categoryId): array
     {
-        $all = $this->allProducts();
+        $categoryId = (string) $categoryId;
+        $products = $this->listProductsByCategoryFilter($categoryId);
 
-        return array_values(array_filter($all, function ($product) use ($categoryId) {
+        if ($products !== []) {
+            return $products;
+        }
+
+        // Alt kategorilerde categoryIds filtresi boş dönebilir; ürün listesinden yedek tara.
+        foreach ($this->allProducts() as $product) {
             foreach ($product['categories'] ?? [] as $category) {
-                if (($category['id'] ?? '') === $categoryId) {
-                    return true;
+                if ((string) ($category['id'] ?? '') === $categoryId) {
+                    $products[] = $product;
+                    break;
                 }
             }
+        }
 
-            return false;
-        }));
+        return $products;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function listProductsByCategoryFilter(string $categoryId): array
+    {
+        $products = [];
+        $page = 1;
+        $limit = 100;
+
+        while (true) {
+            $query = 'query ListProductsInCategory($categoryIds: CategoryFilterInput, $pagination: PaginationInput) { listProduct(categoryIds: $categoryIds, pagination: $pagination) { hasNext data { '.self::PRODUCT_LIST_FIELDS.' } } }';
+
+            $response = $this->client->request([
+                'query' => $query,
+                'variables' => [
+                    'categoryIds' => ['eq' => $categoryId],
+                    'pagination' => [
+                        'page' => $page,
+                        'limit' => $limit,
+                    ],
+                ],
+            ]);
+
+            SyncStorage::writeJson('responses/products-in-category-'.$categoryId.'-page-'.$page.'.json', $response);
+
+            $block = $response['data']['listProduct'] ?? [];
+            $pageProducts = $block['data'] ?? [];
+            $products = array_merge($products, $pageProducts);
+
+            if (empty($block['hasNext'])) {
+                break;
+            }
+
+            $page++;
+        }
+
+        return $products;
     }
 
     /** @param  array<int, string>  $productIds */

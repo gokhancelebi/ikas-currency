@@ -34,7 +34,12 @@ class SubCategorySyncTest extends LiveTestCase
             $create = $this->graphql->create_simple_product(IkasTestData::simpleProductData($sku));
             $productId = $create['productId'] ?? null;
 
-            $this->graphql->add_product_to_category((string) $childId, [(string) $productId]);
+            $addResp = $this->graphql->add_product_to_category((string) $childId, [(string) $productId]);
+            IkasTestData::assertGraphqlOk($this, $addResp, 'add_product_to_category');
+
+            $assigned = $this->graphql->get_product_by_id((string) $productId);
+            $assignedCategoryIds = array_column($assigned['categories'] ?? [], 'id');
+            $this->assertContains((string) $childId, $assignedCategoryIds);
 
             $categories = IkasProductGraphQL::indexCategoriesById($this->graphql->getAllCategories());
             $this->assertArrayHasKey((string) $childId, $categories);

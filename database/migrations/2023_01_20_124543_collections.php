@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('active')->default('passive');
             $table->string('ikas_category_id');
-            $table->string('ikas_parent_category_id')->nullable();
             $table->string('discount')->default(0);
             $table->string('profit')->default(0);
             $table->longText('product_list')->nullable();
