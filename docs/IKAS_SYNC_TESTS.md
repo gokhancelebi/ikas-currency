@@ -52,5 +52,6 @@ php artisan ikas:sync:test UpdateSimpleStockAndPriceTest
 | 14 | CategorySyncLiveTest | CategorySyncService |
 | 15 | CategoryMembershipSyncTest | Kategori üyeliği |
 | 16 | CategoryListCountCompareTest | Kategori sayımı |
+| 17 | SubCategorySyncTest | Alt kategori + üyelik + DB hiyerarşi |
 
 Test verileri `TEST-SYNC-{timestamp}` SKU öneki ile oluşturulur ve `finally` bloklarında temizlenir.

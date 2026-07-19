@@ -42,8 +42,11 @@
                                         </option>
                                     </select>
                                 </td>
-                                <td class="border px-4 py-2">
-                                    {{$collection->name}}
+                                <td class="border px-4 py-2 {{ $collection->isSubcategory() ? 'text-left pl-8' : 'text-left' }}">
+                                    @if($collection->isSubcategory())
+                                        <span class="text-gray-400 mr-1">↳</span>
+                                    @endif
+                                    {{ $collection->name }}
                                 </td>
                                 <td class="border px-4 py-2">
                                     <input class="px-4 py-2 border text-center" value="{{$collection->discount}}"

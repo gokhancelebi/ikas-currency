@@ -13,6 +13,11 @@ class Collection extends Model
 
     public $timestamps = false;
 
+    public function isSubcategory(): bool
+    {
+        return ! empty($this->ikas_parent_category_id);
+    }
+
     public function campaign()
     {
         return $this->hasOne(Campaign::class, 'collection_id', 'ikas_category_id');

@@ -467,17 +467,21 @@ GQL;
         return $response;
     }
 
-    public function create_category(string $categoryName): array
+    public function create_category(string $categoryName, ?string $parentId = null): array
     {
-        $query = 'mutation CreateCategory($input: CreateCategoryInput!) { createCategory(input: $input) { id name } }';
+        $input = [
+            'name' => $categoryName,
+            'isAutomated' => false,
+        ];
+
+        if ($parentId !== null && $parentId !== '') {
+            $input['parentId'] = $parentId;
+        }
+
+        $query = 'mutation CreateCategory($input: CreateCategoryInput!) { createCategory(input: $input) { id name parentId categoryPath } }';
         $response = $this->client->request([
             'query' => $query,
-            'variables' => [
-                'input' => [
-                    'name' => $categoryName,
-                    'isAutomated' => false,
-                ],
-            ],
+            'variables' => ['input' => $input],
         ]);
 
         if (isset($response['data']['createCategory'])) {
@@ -499,7 +503,7 @@ GQL;
     /** @return array<int, array<string, mixed>> */
     public function getAllCategories(): array
     {
-        $query = 'query { listCategory { id name isAutomated } }';
+        $query = 'query { listCategory { id name parentId isAutomated categoryPath } }';
         $response = $this->client->request(['query' => $query]);
         SyncStorage::writeJson('responses/categories.json', $response);
 
@@ -511,6 +515,81 @@ GQL;
         return array_values(array_filter($categories, function ($category) {
             return empty($category['isAutomated']);
         }));
+    }
+
+    /** @param  array<int, array<string, mixed>>  $categories */
+    /** @return array<string, array<string, mixed>> */
+    public static function indexCategoriesById(array $categories): array
+    {
+        $indexed = [];
+        foreach ($categories as $category) {
+            if (! empty($category['id'])) {
+                $indexed[(string) $category['id']] = $category;
+            }
+        }
+
+        return $indexed;
+    }
+
+    /** @param  array<string, mixed>  $category */
+    /** @param  array<string, array<string, mixed>>  $categoriesById */
+    public static function categoryDisplayName(array $category, array $categoriesById): string
+    {
+        $parts = [];
+        foreach (self::categoryPathIds($category) as $parentId) {
+            $parentName = $categoriesById[$parentId]['name'] ?? null;
+            if ($parentName !== null && $parentName !== '') {
+                $parts[] = $parentName;
+            }
+        }
+
+        $parts[] = (string) ($category['name'] ?? '');
+
+        return implode(' > ', array_filter($parts));
+    }
+
+    /** @param  array<string, mixed>  $category */
+    /** @return array<int, string> */
+    public static function categoryPathIds(array $category): array
+    {
+        $path = $category['categoryPath'] ?? [];
+
+        return is_array($path) ? array_values(array_filter($path)) : [];
+    }
+
+    /** @param  array<string, mixed>  $category */
+    /** @return array{name: string, path?: array<int, string>} */
+    public static function buildProductCategoryInput(array $category): array
+    {
+        $input = ['name' => (string) ($category['name'] ?? '')];
+        $path = self::categoryPathIds($category);
+
+        if ($path !== []) {
+            $input['path'] = $path;
+        }
+
+        return $input;
+    }
+
+    /**
+     * @param  array<int, string>  $categoryIds
+     * @param  array<string, array<string, mixed>>  $categoriesById
+     * @return array<int, array{name: string, path?: array<int, string>}>
+     */
+    private function buildProductCategoryInputs(array $categoryIds, array $categoriesById): array
+    {
+        $inputs = [];
+
+        foreach ($categoryIds as $categoryId) {
+            $category = $categoriesById[$categoryId] ?? null;
+            if ($category === null) {
+                continue;
+            }
+
+            $inputs[] = self::buildProductCategoryInput($category);
+        }
+
+        return $inputs;
     }
 
   /** @return array<string, mixed>|null */
@@ -542,29 +621,31 @@ GQL;
     public function add_product_to_category(string $categoryId, array $productIds): array
     {
         $results = [];
+        $categoriesById = self::indexCategoriesById($this->getAllCategories());
+
         foreach ($productIds as $productId) {
             $product = $this->get_product_by_id($productId);
             if ($product === null) {
                 continue;
             }
 
-            $category = $this->getCategoryById($categoryId);
+            $category = $categoriesById[$categoryId] ?? null;
             if ($category === null) {
                 continue;
             }
 
-            $categoryNames = array_column($product['categories'] ?? [], 'name');
-            if (! in_array($category['name'], $categoryNames, true)) {
-                $categoryNames[] = $category['name'];
+            $categoryIds = array_column($product['categories'] ?? [], 'id');
+            if (! in_array($categoryId, $categoryIds, true)) {
+                $categoryIds[] = $categoryId;
             }
 
             $results[] = $this->updateProductFields($productId, [
-                'categories' => array_map(fn (string $name) => ['name' => $name], $categoryNames),
+                'categories' => $this->buildProductCategoryInputs($categoryIds, $categoriesById),
             ]);
         }
 
         if ($productIds === []) {
-            $category = $this->getCategoryById($categoryId);
+            $category = $categoriesById[$categoryId] ?? null;
 
             return [
                 'data' => [
@@ -597,21 +678,21 @@ GQL;
     public function remove_product_from_category(string $categoryId, array $productIds): array
     {
         $results = [];
+        $categoriesById = self::indexCategoriesById($this->getAllCategories());
+
         foreach ($productIds as $productId) {
             $product = $this->get_product_by_id($productId);
             if ($product === null) {
                 continue;
             }
 
-            $category = $this->getCategoryById($categoryId);
-            $removeName = $category['name'] ?? null;
-            $categoryNames = array_values(array_filter(
-                array_column($product['categories'] ?? [], 'name'),
-                fn ($name) => $removeName === null || $name !== $removeName
+            $categoryIds = array_values(array_filter(
+                array_column($product['categories'] ?? [], 'id'),
+                fn ($id) => $id !== $categoryId
             ));
 
             $results[] = $this->updateProductFields($productId, [
-                'categories' => array_map(fn (string $name) => ['name' => $name], $categoryNames),
+                'categories' => $this->buildProductCategoryInputs($categoryIds, $categoriesById),
             ]);
         }
 

@@ -11,7 +11,13 @@ class CampaignsController extends Controller
     public function index()
     {
 
-        $collections = Collection::all();
+        $collections = Collection::all()
+            ->sortBy([
+                fn ($collection) => $collection->ikas_parent_category_id ?? $collection->ikas_category_id,
+                fn ($collection) => $collection->ikas_parent_category_id ? 1 : 0,
+                fn ($collection) => $collection->name,
+            ])
+            ->values();
 
         return view('campaigns.index', compact('collections'));
     }
